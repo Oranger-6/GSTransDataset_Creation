@@ -1,17 +1,19 @@
+# Opaque 3D room and nearby props give the background multi-view parallax.
+# Unlike gstrans_dataset.yaml, this configuration needs no HDR files/indexes.
 Project: GSTransDataset
-project_name: gstrans_synthetic
+project_name: gstrans_finite
 output_folder: ./result
 
 ior_range: [1.3, 1.6]
-envnum_per_shape: 2
+envnum_per_shape: 1              # independent camera/IOR sampling per mesh
 camnum_per_env: 16
 
 TransparentGS:
+  background_mode: finite
   seed: 0
   heldout_views: 4
-  # These boxes are explicit initialization priors, in the source mesh units.
   object_init_bounds: [-1.3, -1.3, -1.3, 1.3, 1.3, 1.3]
-  background_init_bounds: [-4, -4, -4, 4, 4, 4]
+  background_init_bounds: [-3.6, -3.6, -1.15, 3.6, 3.6, 3.4]
   init_count: 100000
 
 Tracer:
@@ -26,12 +28,10 @@ Scene:
     max_depth: 20
   element:
     - type: transparent_mesh
-      mesh_filename: holder.ply
+      mesh_filename: holder.ply  # Replaced from the first shape index at runtime.
       IoR: 1.5
-    - type: envmap_light
-      envmap_filename: holder.exr
-      intensity: 1.0
-      z_up: true
+    - type: constant_environment_light
+      intensity: 0.15           # Interior area light is built in GSTransDataset.py.
 
 Camera:
   type: perspective
@@ -50,6 +50,6 @@ Camera:
 CamPose:
   type: RandomCamPose
   target: [0, 0, 0]
-  theta_range: [40, 110]
+  theta_range: [45, 105]
   r_range: [1.8, 2.2]
   shift: [0, 0, 0]
